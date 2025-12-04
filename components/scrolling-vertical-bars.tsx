@@ -17,58 +17,25 @@ const ScrollingVerticalBars = () => {
   > = {
     monochrome: {
       colors: [
-        ["#000000", "#333333", "#666666"],
-        ["#000000", "#333333", "#666666"],
-        ["#000000", "#333333", "#666666"],
-        ["#000000", "#333333", "#666666"],
-        ["#000000", "#333333", "#666666"],
+        ["#000000", "#1A1A1A", "#333333"],
+        ["#0D0D0D", "#262626", "#404040"],
+        ["#000000", "#1A1A1A", "#333333"],
+        ["#0D0D0D", "#262626", "#404040"],
+        ["#000000", "#1A1A1A", "#333333"],
       ],
-      background: "#F0EEE6",
-      lines: "#666666",
-    },
-    warm: {
-      colors: [
-        ["#8B4513", "#CD853F", "#DEB887"],
-        ["#D2691E", "#F4A460", "#FFDAB9"],
-        ["#A0522D", "#BC8F8F", "#F5DEB3"],
-        ["#8B0000", "#CD5C5C", "#FFA07A"],
-        ["#B8860B", "#DAA520", "#FFD700"],
-      ],
-      background: "#FFF8F0",
-      lines: "#D2B48C",
-    },
-    cool: {
-      colors: [
-        ["#191970", "#4169E1", "#87CEEB"],
-        ["#006400", "#2E8B57", "#98FB98"],
-        ["#008B8B", "#20B2AA", "#AFEEEE"],
-        ["#483D8B", "#6A5ACD", "#B0C4DE"],
-        ["#2F4F4F", "#5F9EA0", "#B0E0E6"],
-      ],
-      background: "#F0F8FF",
-      lines: "#708090",
+      background: "#FAFAFA",
+      lines: "#E5E5E5",
     },
     vibrant: {
       colors: [
-        ["#FF1493", "#FF69B4", "#FFB6C1"],
-        ["#FF4500", "#FF6347", "#FFA500"],
-        ["#9400D3", "#BA55D3", "#DDA0DD"],
-        ["#00CED1", "#40E0D0", "#7FFFD4"],
-        ["#32CD32", "#7CFC00", "#ADFF2F"],
+        ["#E63946", "#D62839", "#B71C1C"], // Rojo
+        ["#F77F00", "#E85D04", "#DC2F02"], // Naranja
+        ["#FCBF49", "#F9C74F", "#FFD60A"], // Amarillo
+        ["#2D6A4F", "#40916C", "#52B788"], // Verde
+        ["#1D3557", "#2563EB", "#3B82F6"], // Azul
       ],
-      background: "#FFFAF0",
-      lines: "#DDA0DD",
-    },
-    earth: {
-      colors: [
-        ["#3D2914", "#5C4033", "#8B7355"],
-        ["#556B2F", "#6B8E23", "#9ACD32"],
-        ["#8B4513", "#A0522D", "#CD853F"],
-        ["#2F4F4F", "#696969", "#808080"],
-        ["#654321", "#8B7765", "#C4A484"],
-      ],
-      background: "#F5F5DC",
-      lines: "#8B7355",
+      background: "#1A1A1A",
+      lines: "#333333",
     },
     dark: {
       colors: [
@@ -92,28 +59,13 @@ const ScrollingVerticalBars = () => {
       background: "#2C1810",
       lines: "#4A3728",
     },
-    ocean: {
-      colors: [
-        ["#0077B6", "#00B4D8", "#90E0EF"],
-        ["#023E8A", "#0096C7", "#48CAE4"],
-        ["#03045E", "#0077B6", "#ADE8F4"],
-        ["#005F73", "#0A9396", "#94D2BD"],
-        ["#001219", "#005F73", "#E9D8A6"],
-      ],
-      background: "#CAF0F8",
-      lines: "#90E0EF",
-    },
   };
 
   const moodLabels: Record<string, string> = {
     monochrome: "Monochrome",
-    warm: "Warm",
-    cool: "Cool",
     vibrant: "Vibrant",
-    earth: "Earth",
     dark: "Dark Mode",
     sunset: "Sunset",
-    ocean: "Ocean",
   };
 
   // Fixed values instead of state variables
@@ -272,7 +224,7 @@ const ScrollingVerticalBars = () => {
             barIndex
           );
 
-          const fontSize = 8 + width * 2;
+          const fontSize = 12 + width * 1.5;
           ctx.font = `${fontSize}px monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -378,41 +330,60 @@ const ScrollingVerticalBars = () => {
         </div>
       </div>
 
+      {/* Custom Characters Input */}
+      <div className="w-full max-w-4xl">
+        <div className="mt-5">
+          <label className="text-base font-medium">
+            Write something you never want to forget.
+          </label>
+          <input
+            type="text"
+            value={customChars}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setCustomChars(e.target.value)
+            }
+            placeholder="Enter characters to display (you can use letters, numbers, or symbols)"
+            className="w-full mt-3 border rounded-xs border-[#f0eee6] font-mono py-2 bg-white pl-3.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#f0eee6]"
+          />
+        </div>
+      </div>
+
       {/* Mood Selector */}
-      <div className="flex flex-wrap justify-center gap-2 max-w-4xl">
+      <div className="flex flex-wrap justify-center gap-6 max-w-4xl">
         {Object.keys(moodPalettes).map((mood) => {
           const palette = moodPalettes[mood];
           const isActive = colorMood === mood;
-          const isDark = mood === "dark" || mood === "sunset";
           return (
             <button
               key={mood}
               onClick={() => setColorMood(mood)}
               className={`
-                relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
-                ${
-                  isActive
-                    ? "ring-2 ring-offset-2 ring-black scale-105"
-                    : "hover:scale-105"
-                }
+                relative flex flex-col items-center gap-2 transition-all duration-200
+                ${isActive ? "opacity-100" : "opacity-60 hover:opacity-100"}
               `}
-              style={{
-                backgroundColor: palette.background,
-                color: isDark ? "#ffffff" : "#333333",
-                border: `2px solid ${palette.lines}`,
-              }}
             >
-              <span className="flex items-center gap-2">
-                {/* Color preview dots */}
-                <span className="flex -space-x-1">
-                  {palette.colors[0].slice(0, 3).map((color, i) => (
-                    <span
-                      key={i}
-                      className="w-3 h-3 rounded-full border border-white/50"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </span>
+              {/* Color preview bar */}
+              <span
+                className={`
+                  flex gap-0.5 p-1 transition-all
+                  ${isActive ? "ring-1 ring-offset-2 ring-black/30" : ""}
+                `}
+                style={{ backgroundColor: palette.background }}
+              >
+                {palette.colors.map((colorSet, i) => (
+                  <span
+                    key={i}
+                    className="w-4 h-8"
+                    style={{ backgroundColor: colorSet[0] }}
+                  />
+                ))}
+              </span>
+              {/* Label */}
+              <span
+                className={`text-xs tracking-wide uppercase ${
+                  isActive ? "font-medium" : ""
+                }`}
+              >
                 {moodLabels[mood]}
               </span>
             </button>
@@ -423,7 +394,7 @@ const ScrollingVerticalBars = () => {
       {/* Export Button */}
       <button
         onClick={handleExport}
-        className="flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-md hover:bg-gray-800 transition-colors text-sm font-medium"
+        className="flex items-center gap-2 px-6 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -442,28 +413,6 @@ const ScrollingVerticalBars = () => {
         </svg>
         Export as Image
       </button>
-
-      {/* Custom Characters Input */}
-      <div className="w-full max-w-4xl">
-        <div className="space-y-3.5 mt-8">
-          <label className="text-xl font-medium ">
-            Write something you never want to forget.
-          </label>
-          <input
-            type="text"
-            value={customChars}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setCustomChars(e.target.value)
-            }
-            placeholder="Enter characters to display (you can use letters, numbers, or symbols)"
-            className="w-full border rounded-xs border-[#f0eee6] font-mono py-2 bg-white pl-3.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#f0eee6]"
-          />
-          <p
-            className="text-xs "
-            style={{ fontFamily: "goudy-old-style, serif", fontSize: "16px" }}
-          ></p>
-        </div>
-      </div>
     </div>
   );
 }
