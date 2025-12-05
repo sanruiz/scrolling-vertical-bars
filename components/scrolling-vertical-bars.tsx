@@ -299,15 +299,15 @@ const ScrollingVerticalBars = () => {
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-6">
       {/* Title and Description */}
       <div className="text-center mb-8">
-        <span>
+        <span className="text-xs sm:text-base">
           YOUR WORDS BECOME LETTERS&nbsp;&nbsp; {"  "}&nbsp;&nbsp;YOUR LETTERS
           BECOME THE MESSAGE
         </span>
-        <h1 className="text-8xl font-extralight cap mb-4 uppercase text">
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-extralight cap mb-4 uppercase text">
           Woven Records
         </h1>
-        <div className="w-4xl mx-auto space-y-2">
-          <p className="text-md leading-4 italic">
+        <div className="max-w-4xl mx-auto space-y-2 px-4">
+          <p className="text-sm sm:text-md leading-4 italic">
             Those letters are the material <br /> of this digital textile <br />{" "}
             — record of what you
             <br />
