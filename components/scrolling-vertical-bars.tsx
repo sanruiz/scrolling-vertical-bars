@@ -225,7 +225,7 @@ const ScrollingVerticalBars = () => {
           );
 
           const fontSize = 12 + width * 1.5;
-          ctx.font = `${fontSize}px monospace`;
+          ctx.font = `${fontSize}px "Menlo", "Consolas", "Courier New", monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
 
