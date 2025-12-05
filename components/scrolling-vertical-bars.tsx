@@ -73,12 +73,11 @@ const ScrollingVerticalBars = () => {
   const numColors = 5;
   const patternScale = 3;
   const verticalProgression = 1.5;
-  const [customChars, setCustomChars] = useState(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*"
-  );
+  const [customChars, setCustomChars] = useState("▒");
 
   const pattern1Ref = useRef<any[] | null>(null);
   const pattern2Ref = useRef<any[] | null>(null);
+  const canvasSizeRef = useRef({ width: 0, height: 0 });
 
   useEffect(() => {
     // Clear patterns when characters change to force regeneration
@@ -92,9 +91,21 @@ const ScrollingVerticalBars = () => {
     if (!ctx) return;
 
     const updateCanvasSize = () => {
-      // Set fixed dimensions
-      canvas.width = 896;
-      canvas.height = 576;
+      const container = canvas.parentElement;
+      if (container && ctx) {
+        const { width, height } = container.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+
+        // Store the CSS size for drawing calculations
+        canvasSizeRef.current = { width, height };
+
+        // Set the canvas buffer size (scaled for high DPI)
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+
+        // Scale the context to match DPI
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
     };
 
     updateCanvasSize();
@@ -109,19 +120,21 @@ const ScrollingVerticalBars = () => {
 
     window.addEventListener("resize", handleResize);
 
-    const numLines = 60;
-    const lineSpacing = canvas.width / numLines;
+    // Responsive number of lines: 20 for mobile, 45 for desktop
+    const getNumLines = () => {
+      const { width } = canvasSizeRef.current;
+      return width < 640 ? 20 : 45;
+    };
 
-    const chars =
-      customChars.length > 0
-        ? customChars
-        : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*";
+    const chars = customChars.length > 0 ? customChars : "▒";
 
     // Get current mood palette
     const currentPalette = moodPalettes[colorMood] || moodPalettes.monochrome;
     const colorBands = currentPalette.colors;
 
     const createPattern = (offset: number) => {
+      const { width, height } = canvasSizeRef.current;
+      const numLines = getNumLines();
       const pattern = [];
       for (let i = 0; i < numLines; i++) {
         const bars = [];
@@ -133,7 +146,7 @@ const ScrollingVerticalBars = () => {
           );
           bars.push({
             y:
-              (j / numBars) * canvas.height +
+              (j / numBars) * height +
               Math.sin(i * 0.5 + j * 0.3 + offset) * 30,
             height: 5 + Math.sin(i * 0.2 + j * 0.4) * 3,
             width: 2 + Math.cos(i * 0.3) * 2,
@@ -161,9 +174,10 @@ const ScrollingVerticalBars = () => {
       lineIndex: number,
       barIndex: number
     ) => {
+      const { height } = canvasSizeRef.current;
       // Determine which horizontal band we're in
-      const bandHeight = canvas.height / numColors;
-      const yPos = (barIndex / 15) * canvas.height;
+      const bandHeight = height / numColors;
+      const yPos = (barIndex / 15) * height;
       const bandIndex = Math.floor(yPos / bandHeight) % numColors;
       const palette = colorBands[bandIndex % colorBands.length];
 
@@ -179,13 +193,17 @@ const ScrollingVerticalBars = () => {
     };
 
     const animate = () => {
+      const { width, height } = canvasSizeRef.current;
+      const numLines = getNumLines();
+      const lineSpacing = width / numLines;
+
       if (!isPausedRef.current) {
         scrollPositionRef.current += speed;
       }
       const scrollFactor = (Math.sin(scrollPositionRef.current) + 1) / 2;
 
       ctx.fillStyle = currentPalette.background;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, width, height);
 
       for (let i = 0; i < numLines; i++) {
         const x = i * lineSpacing + lineSpacing / 2;
@@ -194,7 +212,7 @@ const ScrollingVerticalBars = () => {
         ctx.strokeStyle = currentPalette.lines;
         ctx.lineWidth = 1;
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
+        ctx.lineTo(x, height);
         ctx.stroke();
 
         const bars1 = pattern1[i];
@@ -224,7 +242,10 @@ const ScrollingVerticalBars = () => {
             barIndex
           );
 
-          const fontSize = 12 + width * 1.5;
+          // Responsive font size: smaller on mobile
+          const isMobile = width < 640;
+          const baseFontSize = isMobile ? 6 : 14;
+          const fontSize = baseFontSize + width * (isMobile ? 1 : 1.5);
           ctx.font = `${fontSize}px "Menlo", "Consolas", "Courier New", monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -251,13 +272,6 @@ const ScrollingVerticalBars = () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
         animationFrameId.current = null;
-      }
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-      if (canvas) {
-        canvas.width = 0;
-        canvas.height = 0;
       }
       // Only reset scroll position when chars change, not on mood change
       // scrollPositionRef.current = 0;
@@ -303,8 +317,8 @@ const ScrollingVerticalBars = () => {
       </div>
 
       {/* Canvas Animation */}
-      <div className="flex justify-center">
-        <div className="relative w-4xl h-[576px] group">
+      <div className="flex justify-center w-full">
+        <div className="relative w-full max-w-4xl aspect-[896/576] group">
           <canvas
             ref={canvasRef}
             onClick={handleCanvasClick}
