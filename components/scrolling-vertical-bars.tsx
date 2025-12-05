@@ -244,7 +244,7 @@ const ScrollingVerticalBars = () => {
 
           // Responsive font size: smaller on mobile
           const isMobile = width < 640;
-          const baseFontSize = isMobile ? 6 : 14;
+          const baseFontSize = isMobile ? 8 : 14;
           const fontSize = baseFontSize + width * (isMobile ? 1 : 1.5);
           ctx.font = `${fontSize}px "Menlo", "Consolas", "Courier New", monospace`;
           ctx.textAlign = "center";
@@ -318,7 +318,7 @@ const ScrollingVerticalBars = () => {
 
       {/* Canvas Animation */}
       <div className="flex justify-center w-full">
-        <div className="relative w-full max-w-4xl aspect-[896/576] group">
+        <div className="relative w-full max-w-4xl aspect-896/576 group">
           <canvas
             ref={canvasRef}
             onClick={handleCanvasClick}
